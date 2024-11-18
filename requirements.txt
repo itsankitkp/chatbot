@@ -1,2 +1,9 @@
 streamlit
 openai
+langchain-community
+beautifulsoup4
+langchain-unstructured
+unstructured
+langchain-openai
+requests
+faiss-cpu
