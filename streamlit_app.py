@@ -1,7 +1,5 @@
 import streamlit as st
 from openai import OpenAI
-import faiss
-from langchain_community.docstore.in_memory import InMemoryDocstore
 from langchain_community.vectorstores import FAISS
 from langchain_openai import OpenAIEmbeddings
 from langchain_openai import ChatOpenAI
@@ -10,7 +8,6 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnablePassthrough
 from langchain.retrievers import ContextualCompressionRetriever
 from langchain.retrievers.document_compressors import FlashrankRerank
-from flashrank import Ranker, RerankRequest
 
 # Show title and description.
 st.title("💬 Mammoth Q&A Chatbot")
