@@ -89,19 +89,19 @@ if prompt := st.chat_input("What is up?"):
     with st.chat_message("user"):
         st.markdown(prompt)
 
-    # sub_queries = decompose_query(prompt)
-    # if len(sub_queries) > 1:
-    #     # Get relevant docs for each sub-query
-    #     all_docs = []
-    #     for sub_query in sub_queries:
-    #         docs = enhanced_retrieval(sub_query, retriever)
-    #         all_docs.extend(docs)
-    #     all_docs = [_.page_content for _ in all_docs]
-    #     unique_docs = list(set(all_docs))
-    #     llm_prompt = create_multi_task_prompt(prompt, unique_docs)
-    #     iter = llm.stream(llm_prompt)
-    # else:
-    iter = rag_chain.stream(prompt)
+    sub_queries = decompose_query(prompt)
+    if len(sub_queries) > 1:
+        # Get relevant docs for each sub-query
+        all_docs = []
+        for sub_query in sub_queries:
+            docs = enhanced_retrieval(sub_query, retriever)
+            all_docs.extend(docs)
+        all_docs = [_.page_content for _ in all_docs]
+        unique_docs = list(set(all_docs))
+        llm_prompt = create_multi_task_prompt(prompt, unique_docs)
+        iter = llm.stream(llm_prompt)
+    else:
+        iter = rag_chain.stream(prompt)
 
     # Get the response from the chatbot.
     with st.chat_message("assistant"):
