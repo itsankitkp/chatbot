@@ -8,6 +8,7 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnablePassthrough
 from langchain.retrievers import ContextualCompressionRetriever
 from langchain.retrievers.document_compressors import FlashrankRerank
+from flashrank import Ranker
 
 # Show title and description.
 st.title("💬 Mammoth Q&A Chatbot")
@@ -18,12 +19,13 @@ st.write("Your AI Documentation Assistant")
 embeddings = OpenAIEmbeddings(
     model="text-embedding-3-large", api_key=st.secrets["OPEN_API_KEY"]
 )
+ranker = Ranker(model_name="ms-marco-MiniLM-L-12-v2")
 client = OpenAI(api_key=st.secrets["OPEN_API_KEY"])
 vector_store = FAISS.load_local(
     "faiss_index", embeddings, allow_dangerous_deserialization=True
 )
 retriever = vector_store.as_retriever(search_type="mmr", search_kwargs={"k": 20})
-compressor = FlashrankRerank()
+compressor = FlashrankRerank(client=ranker)
 compression_retriever = ContextualCompressionRetriever(
     base_compressor=compressor, base_retriever=retriever
 )

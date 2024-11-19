@@ -7,3 +7,4 @@ unstructured
 langchain-openai
 requests
 faiss-cpu
+flashrank
