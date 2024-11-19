@@ -36,6 +36,31 @@ def format_docs(docs):
     return "\n\n".join(doc.page_content for doc in docs)
 
 
+def decompose_query(query):
+    # Simple rule-based decomposition using "and" as separator
+    sub_queries = [q.strip() for q in query.split("and")]
+    return sub_queries
+
+
+def enhanced_retrieval(query, retriever):
+    # Increase the number of retrieved documents
+    docs = retriever.invoke(query)
+    return docs
+
+
+def create_multi_task_prompt(query, docs):
+    prompt = f"""
+    You are an assistant for question-answering tasks. Use the following pieces of retrieved context to answer the question.
+    If the query contains multiple tasks, make sure to address each one separately.
+    Question: {query}
+    Documents:
+    {docs}
+    Use three sentences maximum for each task and keep the answer concise.
+    Do not answer the question if it is not related to the documents provided.
+    """
+    return prompt
+
+
 prompt = hub.pull("rlm/rag-prompt")
 
 llm = ChatOpenAI(model="gpt-4o-mini", api_key=st.secrets["OPEN_API_KEY"])
@@ -65,8 +90,23 @@ if prompt := st.chat_input("What is up?"):
     with st.chat_message("user"):
         st.markdown(prompt)
 
+    sub_queries = decompose_query(prompt)
+    if len(sub_queries) > 1:
+        # Get relevant docs for each sub-query
+        all_docs = []
+        for sub_query in sub_queries:
+            docs = enhanced_retrieval(sub_query, retriever)
+            all_docs.extend(docs)
+        all_docs = [_.page_content for _ in all_docs]
+        unique_docs = list(set(all_docs))
+        llm_prompt = create_multi_task_prompt(prompt, unique_docs)
+        iter = llm.stream(llm_prompt)
+    else:
+        iter = rag_chain.stream(prompt)
+
+    # Get the response from the chatbot.
     with st.chat_message("assistant"):
-        response = st.write_stream(rag_chain.stream(prompt))
+        response = st.write_stream(iter)
 
     # Stream the response to the chat using `st.write_stream`, then store it in
     # session state.
