@@ -82,13 +82,13 @@ for message in st.session_state.messages:
 
 # Create a chat input field to allow the user to enter a message. This will display
 # automatically at the bottom of the page.
-if prompt := st.chat_input("What is up?"):
+if prompt := st.chat_input("How can I fix typos in Mammoth?"):
 
     # Store and display the current prompt.
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)
-
+    prompt += "in Mammoth"
     sub_queries = decompose_query(prompt)
     if len(sub_queries) > 1:
         # Get relevant docs for each sub-query
